@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <title>Punks</title>
+</header>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<script>
+
+const INPUT = "input";
+const OUTPUT = "output";
+
+const DATA_SIZE = 24 * 24 * 4
+
+// random normal https://stackoverflow.com/a/36481059
+function randn_bm() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+}
+
+// use an async context to call onnxruntime functions.
+async function main() {
+
+    // generate punks
+    let session = await ort.InferenceSession.create('./model.onnx');
+    const z = Float32Array.from({length: (64 * 100)}, () => randn_bm());
+    const tensorZ = new ort.Tensor('float32', z, [64, 100, 1, 1])
+    const images = await session.run({"input": tensorZ});
+    const image_data = images[OUTPUT].data;
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // add punks to screen
+    const image = new ImageData(
+        new Uint8ClampedArray(image_data.slice(0,DATA_SIZE)),
+        24,
+        24
+    )
+    ctx.putImageData(
+        image,
+        0,
+        0,
+    )
+}
+
+main();
+
+</script>
+<canvas id="canvas"></canvas>
+<p>Made by <a href="http://patch.red">patch.*</a></p>
+</body>
+</html>
