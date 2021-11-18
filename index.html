@@ -30,26 +30,24 @@ async function main() {
     const images = await session.run({"input": tensorZ});
     const image_data = images[OUTPUT].data;
 
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = 24;
+    canvas.height = 24;
 
-    // add punks to screen
-    const image = new ImageData(
-        new Uint8ClampedArray(image_data.slice(0,DATA_SIZE)),
-        24,
-        24
-    )
-    ctx.putImageData(
-        image,
-        0,
-        0,
-    )
+    const imageData = new ImageData(new Uint8ClampedArray(image_data.slice(0,DATA_SIZE)), 24, 24);
+    ctx.putImageData(imageData, 0, 0);
+
+    const img = document.getElementById("img");
+    img.src = canvas.toDataURL();
+
+
 }
 
 main();
 
 </script>
-<canvas id="canvas"></canvas>
+<img id="img" height=256 style="image-rendering: pixelated">
 <p>Made by <a href="http://patch.red">patch.*</a></p>
 </body>
 </html>
